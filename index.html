@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURE OS - LOCKSCREEN</title>
+    <!-- Используем стабильный Pyodide напрямую -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+        body { background-color: #050505; color: #00ff00; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .container { text-align: center; border: 1px solid #00ff00; padding: 40px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); width: 400px; position: relative; }
+        h1 { margin-top: 0; letter-spacing: 2px; text-shadow: 0 0 5px #00ff00; }
+        input { background: transparent; border: 1px solid #00ff00; color: #00ff00; font-family: inherit; font-size: 24px; padding: 10px; width: 200px; text-align: center; margin-top: 20px; outline: none; }
+        button { background: #002200; border: 1px solid #00ff00; color: #00ff00; font-family: inherit; padding: 10px 20px; margin-top: 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #005500; }
+        .error { color: #ff0000; margin-top: 15px; height: 20px; text-shadow: 0 0 5px #ff0000; }
+        .scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; pointer-events: none; opacity: 0.6; }
+        #success-data { display: none; text-align: left; margin-top: 20px; border-top: 1px dashed #00ff00; padding-top: 20px; }
+        #status { font-size: 12px; margin-bottom: 10px; color: #888; }
+    </style>
+</head>
+<body data-auth-token="U0hFUklGRg==">
+    <div class="scanlines"></div>
+    <div class="container" id="lock-screen">
+        <h1>SHERIFF OS</h1>
+        <p id="status">LOADING PYTHON KERNEL...</p>
+        <div id="ui" style="display:none;">
+            <p>SYSTEM ENCRYPTED. ENTER PIN.</p>
+            <input type="text" id="pin-input" autocomplete="off" maxlength="8">
+            <br>
+            <button id="decrypt-btn">DECRYPT DEVICE</button>
+        </div>
+        <div id="error-msg" class="error"></div>
+        <div id="success-data"></div>
+    </div>
+
+    <script>
+        window.DEBUG = 0;
+        window.DEBUG_INFO = ((h) => h.match(/.{1,2}/g).map(x => String.fromCharCode(parseInt(x, 16))).join(''))("53595354454d5f4c4f473a2044656372797074696f6e20747970653a204241534536342e205461726765743a2044554d502e");
+
+        async function setup() {
+            const status = document.getElementById('status');
+            const ui = document.getElementById('ui');
+            const errorDiv = document.getElementById('error-msg');
+
+            try {
+                let pyodide = await loadPyodide();
+                
+                await pyodide.runPythonAsync(`
+import math, base64
+from js import window, console
+
+
+# sum(x for x in a if x % 7 == 0)
+DUMP = "X2MgPSBbMCwgODQxLCA5MDksIDE0MSwgNzU2LCA5NTgsIDI3OSwgNjU2LCA5ODksIDQxMiwgNTQ0LCA5OTksIDUzNiwgNDIwLCA5OTAsIDY1MCwgMjg3LCA5NjEsIDc1MCwgMTQ5XQ=="
+
+def authorize(token):
+    if window.DEBUG != 1:
+        console.error("CRITICAL: Debug mode is OFF. Access denied.")
+        return None
+    try:
+        if base64.b64encode(token.encode()).decode() == "U0hFUklGRg==":
+            console.log("%c[AUTHORIZATION ACCEPTED]", "color: #00ff00; font-weight: bold;")
+            console.log("Access granted to encrypted DUMP variable.")
+            console.log(f"%c{window.DEBUG_INFO}", "color: #888; font-style: italic;")
+            console.log(f"ENCRYPTED DUMP: {DUMP}")
+            console.log(f"%c{window.DEBUG_INFO}", "color: #888; font-style: italic;")
+            return "Awaiting PIN calculation..."
+        else:
+            console.error("[AUTHORIZATION FAILED] Invalid token.")
+            return "Access denied."
+    except Exception:
+        console.error("[AUTHORIZATION FAILED] Error processing token.")
+        return "Access denied."
+
+
+window.authorize = authorize
+                `);
+
+                document.getElementById('decrypt-btn').onclick = () => {
+                    const val = document.getElementById('pin-input').value;
+                    const _0x4f2a = (s) => s.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0);
+                    
+                    if (_0x4f2a(val) === 1511456) {
+                        const _0x55bb = "3c68333e44454352595054494f4e205355434345535346554c3c2f68333e3c703e3c7374726f6e673e5b30303a30305d20546f3a20417274697374202841647269616e293c2f7374726f6e673e3c2f703e3c703e3e2022d090d0b4d180d0b8d0b0d0bd2c20d0bcd0bed0b920d0bdd0b5d0bfd180d0b8d0b7d0bdd0b0d0bdd0bdd18bd0b920d0b3d0b5d0bdd0b8d0b92120d09fd0bed181d0bbd0b5d0b4d0bdd0b8d0b920d0a8d182d180d0b8d1852e20d0add182d0bed1822e2e2e20d0bad0b0d0ba20d0b5d0b3d0be2e2e2e20d184d0b8d0bdd0b0d0bbd18cd0bdd18bd0b920d0b0d0bad0bad0bed182d0b420d181d0b8d0bcd184d0bed0bdd0b8d0b82120d0af20d0b2d18bd181d18bd0bbd0b0d18e20d182d0b5d0b1d0b520d0bcd0b0d182d0b5d180d0b8d0b0d0bb2e20d096d0b4d18320d0bed18220d182d0b0d0bad0bed0b920d0bcd0b0d0b3d0b8d0b820d187d182d0bed0b1d18b20d182d0b5d0bdd18c20d0bfd0bed0b3d0bbd0bed182d0b8d0bbd0b020d0bfd0bbd0bed182d18c2e20d096d0b4d18320d0bed18220d182d0b5d0b1d18f20d0b8d181d182d0b8d0bdd0bdd18bd0b92c20d0b1d0b5d181d0bfd180d0b5d0bad0bed181d0bbd0bed0b2d0bdd18bd0b9206d617374657270696563652e20d0a2d0b0d0bad0b82c20d187d182d0bed0b1d18b20d0b0d0b620d0b4d183d188d18320d180d0b2d0b0d0bbd0be2120d092d0b5d187d0bdd0bed181d182d18c20d0b6d0b4d0b5d1822e20d09ad0b0d0ba20d0bed0b1d0b5d189d0b0d0bb2c20d0b1d0b5d181d181d0bcd0b5d180d182d0b8d0b520d0b1d183d0b4d0b5d18220d182d0b2d0bed0b8d0bc2e20d0a2d0b2d0bed180d0b82c20d0bcd0bed0b920d0b4d180d183d0b32c20d182d0b2d0bed180d0b821223c2f703e3c62723e3c703e3c7374726f6e673eTo: Tremere Chantry3c2f7374726f6e673e3c2f703e3c703e3e2022d09dd183d0b6d0b5d0bd20d181d0bed181d182d0b0d0b220d0b4d0bbd18f2027d0a2d0b5d0bdd0b5d0b2d0bed0b3d0be20d0a1d0bad183d0bbd18cd0bfd182d0bed180d0b0272e20d0a7d182d0bed0b1d18b20d182d0b5d0bdd18c20d0bfd0bed0b3d0bbd0bed182d18ce20d0bfd0bbd0bed182d18c2e20d0a1d180d0bed187d0bdd0be2e223c62723e203e2052453a2022d091d0b5d0b720d0bbd0b8d187d0bdd0bed0b920d184d0b8d0bad181d0b0d186d0b8d0b820d18120d095d0b3d0be20d0a1d0b2d0b5d182d0bbd0bed181d182d18cd18e20d0bcd18b20d182d0b0d0bad0bed0b520d0bdd0b520d0bed182d0bfd183d181d0bad0b0d0b5d0bc2e20d0a1d0bdd0b0d187d0b0d0bbd0b020d0b0d183d0b4d0b8d0b5d0bdd186d0b8d18f2c20d0bfd0bed182d0bed0bc20d0bad0bed182d191d0bb2e223c62723e203e2052453a2022d091d183d0b4d0b5d1822e20d096d0b4d0b8d182d0b520d0b22030323a30302e223c2f703e3c62723e3c703e3c7374726f6e673e5b53656e745d20546f3a20436f6e746163745f563c2f7374726f6e673e3c2f703e3c703e3e2022d09ed0b1d18ad0b5d0bad18220d0bdd0b020d0bcd0b5d181d182d0b52e20d09dd0b0d0bfd180d0b0d0b2d0bbd18fd0b920d0b2d0b0d0bad183d183d0bc20d0bfd0be20d0b0d0b4d180d0b5d181d18320d0a0d183d0b8d1812e20d09dd0b8d0bad0b0d0bad0b8d18520d181d0bbd0b5d0b4d0bed0b22e223c2f703e";
+                        const _0x11cc = (h) => { let s = ""; for (let i = 0; i < h.length; i += 2) s += String.fromCharCode(parseInt(h.substr(i, 2), 16)); return decodeURIComponent(escape(s)); };
+                        const target = document.getElementById('success-data');
+                        target.innerHTML = _0x11cc(_0x55bb);
+                        target.style.display = 'block';
+                        ui.style.display = 'none';
+                        errorDiv.innerText = "";
+                    } else {
+                        errorDiv.innerText = "ACCESS DENIED";
+                        setTimeout(() => { errorDiv.innerText = ""; }, 2000);
+                    }
+                };
+
+                status.innerText = "SYSTEM READY.";
+                ui.style.display = 'block';
+                console.log("%c[SYSTEM] Python Kernel Ready.", "color: #00ff00; font-weight: bold;");
+                console.log("Diagnostics locked. Set DEBUG=1 to initialize.");
+
+                let debugInitialized = false;
+                setInterval(() => {
+                    if (window.DEBUG == 1 && !debugInitialized) {
+                        debugInitialized = true;
+                        console.log("%c[DIAGNOSTIC] Debug mode enabled. Use authorize(token).", "color: #00ff00");
+                    }
+                }, 500);
+
+            } catch (e) { status.innerText = "CRITICAL ERROR: KERNEL PANIC."; console.error(e); }
+        }
+        setup();
+    </script>
+</body>
+</html>
